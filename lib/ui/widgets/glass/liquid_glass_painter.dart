@@ -28,7 +28,9 @@ class LiquidGlassPainter extends CustomPainter {
     _paintReflections(canvas, size, rrect);
 
     // 3. Internal Accents (Sparkles)
-    _paintSparkles(canvas, size, rrect);
+    if (config.fidelity == LiquidFidelity.ultra) {
+      _paintSparkles(canvas, size, rrect);
+    }
     
     // 4. Subtle Glow
     _paintInnerGlow(canvas, size, rrect);

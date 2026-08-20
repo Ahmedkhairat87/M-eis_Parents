@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class LiquidGlassController extends ChangeNotifier {
   final TickerProvider vsync;
+  double animationSpeed;
   late AnimationController _mainController;
   
   Offset _pointerPosition = Offset.zero;
@@ -14,7 +15,7 @@ class LiquidGlassController extends ChangeNotifier {
   final List<double> _frequencies = [1.1, 0.7, 1.3, 0.5, 0.9];
   final List<double> _amplitudes = [0.2, 0.15, 0.1, 0.25, 0.05];
 
-  LiquidGlassController({required this.vsync}) {
+  LiquidGlassController({required this.vsync, this.animationSpeed = 1.0}) {
     _mainController = AnimationController(
       vsync: vsync,
       duration: const Duration(seconds: 60),
@@ -22,8 +23,14 @@ class LiquidGlassController extends ChangeNotifier {
      ..repeat();
   }
 
+  double _lastValue = 0.0;
+
   void _update() {
-    _time = _mainController.value * pi * 2 * 10;
+    double delta = _mainController.value - _lastValue;
+    if (delta < 0) delta += 1.0;
+    _lastValue = _mainController.value;
+
+    _time += delta * pi * 2 * 10 * animationSpeed;
     
     // Smooth pointer tracking (simulated spring)
     _pointerPosition = Offset.lerp(_pointerPosition, _targetPointerPosition, 0.1)!;
@@ -37,6 +44,10 @@ class LiquidGlassController extends ChangeNotifier {
       (position.dx / size.width) * 2 - 1,
       (position.dy / size.height) * 2 - 1,
     );
+  }
+
+  void updateSpeed(double newSpeed) {
+    animationSpeed = newSpeed;
   }
 
   double get time => _time;

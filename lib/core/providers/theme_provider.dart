@@ -5,10 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = 'theme_mode';
-  static const String _frostKey = 'liquid_glass_frost';
-  static const String _blurKey = 'liquid_glass_blur';
-  static const String _enabledKey = 'liquid_glass_enabled';
-  static const String _fidelityKey = 'liquid_glass_fidelity';
+  static const String _frostKey = 'ethereal_frost';
+  static const String _blurKey = 'ethereal_blur';
+  static const String _enabledKey = 'ethereal_enabled';
+  static const String _fidelityKey = 'ethereal_fidelity';
+  static const String _animationSpeedKey = 'ethereal_animation_speed';
+  static const String _breathingScaleKey = 'ethereal_breathing_scale';
   
   ThemeMode _themeMode = ThemeMode.system;
   LiquidGlassConfig _glassConfig = const LiquidGlassConfig();
@@ -33,6 +35,7 @@ class ThemeProvider extends ChangeNotifier {
       interactiveSensitivity: _glassConfig.interactiveSensitivity,
       breathingScale: _glassConfig.breathingScale,
       breathingSpeed: _glassConfig.breathingSpeed,
+      animationSpeed: _glassConfig.animationSpeed,
       fidelity: _glassConfig.fidelity,
     );
   }
@@ -53,13 +56,17 @@ class ThemeProvider extends ChangeNotifier {
     final blur = prefs.getDouble(_blurKey);
     final enabled = prefs.getBool(_enabledKey);
     final fidelityIndex = prefs.getInt(_fidelityKey);
+    final animationSpeed = prefs.getDouble(_animationSpeedKey);
+    final breathingScale = prefs.getDouble(_breathingScaleKey);
     
-    if (frost != null || blur != null || enabled != null || fidelityIndex != null) {
+    if (frost != null || blur != null || enabled != null || fidelityIndex != null || animationSpeed != null || breathingScale != null) {
       _glassConfig = _glassConfig.copyWith(
         frostAmount: frost,
         blurIntensity: blur,
         isEnabled: enabled,
         fidelity: fidelityIndex != null ? LiquidFidelity.values[fidelityIndex] : null,
+        animationSpeed: animationSpeed,
+        breathingScale: breathingScale,
       );
     }
     
@@ -82,6 +89,8 @@ class ThemeProvider extends ChangeNotifier {
     await prefs.setDouble(_blurKey, config.blurIntensity);
     await prefs.setBool(_enabledKey, config.isEnabled);
     await prefs.setInt(_fidelityKey, config.fidelity.index);
+    await prefs.setDouble(_animationSpeedKey, config.animationSpeed);
+    await prefs.setDouble(_breathingScaleKey, config.breathingScale);
   }
 
   bool get isDarkMode {

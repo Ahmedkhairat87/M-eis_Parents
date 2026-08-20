@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:eism/core/providers/theme_provider.dart';
 import 'package:eism/core/theme/liquid_glass_theme.dart';
 import 'package:eism/ui/widgets/glass/liquid_glass_controller.dart';
@@ -54,6 +55,7 @@ class _GlassScaffoldState extends State<GlassScaffold> with TickerProviderStateM
     final glassTheme = Theme.of(context).extension<LiquidGlassTheme>() ?? 
                        themeProvider.glassTheme;
     final isDarkMode = themeProvider.isDarkMode;
+    final config = themeProvider.glassConfig;
 
     if (!glassTheme.isEnabled) {
       return Scaffold(
@@ -67,67 +69,82 @@ class _GlassScaffoldState extends State<GlassScaffold> with TickerProviderStateM
       );
     }
 
-    return AnimatedBuilder(
-      animation: _backgroundController,
-      builder: (context, child) {
-        return Stack(
-          children: [
-            // Dynamic Background (Full Screen)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: isDarkMode 
-                      ? [
-                          const Color(0xFF0F2027),
-                          const Color(0xFF203A43),
-                          const Color(0xFF2C5364),
-                        ]
-                      : [
-                          const Color(0xFFE0EAFC),
-                          const Color(0xFFCFDEF3),
-                          const Color(0xFFF5F7FA),
-                        ],
-                  ),
-                ),
-              ),
-            ),
-            
-            // Animated decorative blobs
-            Positioned(
-              top: -50.h + _backgroundController.getOrganicValue(0) * 100,
-              right: -50.w + _backgroundController.getOrganicValue(1) * 100,
-              child: _DecorativeBlob(
-                size: 300.w + _backgroundController.getOrganicValue(2) * 50,
-                color: (isDarkMode ? Colors.blue : Colors.blue.shade200).withValues(alpha: 0.15),
-              ),
-            ),
-            Positioned(
-              bottom: 50.h + _backgroundController.getOrganicValue(3) * 80,
-              left: -30.w + _backgroundController.getOrganicValue(4) * 80,
-              child: _DecorativeBlob(
-                size: 250.w + _backgroundController.getOrganicValue(0) * 40,
-                color: (isDarkMode ? Colors.purple : Colors.purple.shade200).withValues(alpha: 0.1),
-              ),
-            ),
+    _backgroundController.updateSpeed(config.animationSpeed);
 
-            // Main Scaffold
-            Scaffold(
-              extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
-              extendBody: widget.extendBody,
-              appBar: widget.appBar,
-              drawer: widget.drawer,
-              bottomNavigationBar: widget.bottomNavigationBar,
-              floatingActionButton: widget.floatingActionButton,
-              floatingActionButtonLocation: widget.floatingActionButtonLocation,
-              backgroundColor: Colors.transparent,
-              body: widget.body,
+    return Stack(
+      children: [
+        // Dynamic Background (Full Screen)
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDarkMode 
+                  ? [
+                      const Color(0xFF0F2027),
+                      const Color(0xFF203A43),
+                      const Color(0xFF2C5364),
+                    ]
+                  : [
+                      const Color(0xFFE0EAFC),
+                      const Color(0xFFCFDEF3),
+                      const Color(0xFFF5F7FA),
+                    ],
+              ),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+        
+        // Animated decorative blobs - Only this part rebuilds every frame
+        Positioned.fill(
+          child: IgnorePointer(
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _backgroundController,
+                builder: (context, child) {
+                  final breathingAmount = (config.breathingScale - 1.0) * 
+                      ((math.sin(_backgroundController.time * config.breathingSpeed * 1.5) + 1) / 2);
+                  
+                  return Stack(
+                    children: [
+                      Positioned(
+                        top: -50.h + _backgroundController.getOrganicValue(0) * 100 * (1 + breathingAmount),
+                        right: -50.w + _backgroundController.getOrganicValue(1) * 100 * (1 + breathingAmount),
+                        child: _DecorativeBlob(
+                          size: (300.w + _backgroundController.getOrganicValue(2) * 50) * (1 + breathingAmount),
+                          color: (isDarkMode ? Colors.blue : Colors.blue.shade200).withValues(alpha: 0.15),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 50.h + _backgroundController.getOrganicValue(3) * 80 * (1 + breathingAmount),
+                        left: -30.w + _backgroundController.getOrganicValue(4) * 80 * (1 + breathingAmount),
+                        child: _DecorativeBlob(
+                          size: (250.w + _backgroundController.getOrganicValue(0) * 40) * (1 + breathingAmount),
+                          color: (isDarkMode ? Colors.purple : Colors.purple.shade200).withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+
+        // Main Scaffold - Remains stable and does not rebuild every animation frame
+        Scaffold(
+          extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
+          extendBody: widget.extendBody,
+          appBar: widget.appBar,
+          drawer: widget.drawer,
+          bottomNavigationBar: widget.bottomNavigationBar,
+          floatingActionButton: widget.floatingActionButton,
+          floatingActionButtonLocation: widget.floatingActionButtonLocation,
+          backgroundColor: Colors.transparent,
+          body: widget.body,
+        ),
+      ],
     );
   }
 }

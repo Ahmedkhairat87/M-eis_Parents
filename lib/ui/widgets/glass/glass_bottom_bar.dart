@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:eism/core/liquid_glass_config.dart';
 import 'package:eism/core/providers/theme_provider.dart';
 import 'package:eism/core/theme/liquid_glass_theme.dart';
 import 'package:flutter/material.dart';
@@ -58,19 +59,35 @@ class GlassBottomBar extends StatelessWidget {
       );
     }
 
+    final config = themeProvider.glassConfig;
+
+    double blurValue = glassTheme.blurIntensity;
+    if (config.fidelity == LiquidFidelity.standard) {
+      blurValue *= 0.5;
+    } else if (config.fidelity == LiquidFidelity.ultra) {
+      blurValue *= 1.2;
+    }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(glassTheme.cornerRadius.r),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: glassTheme.blurIntensity, sigmaY: glassTheme.blurIntensity),
+        filter: ImageFilter.blur(
+          sigmaX: blurValue * config.frostAmount * 2, 
+          sigmaY: blurValue * config.frostAmount * 2
+        ),
         child: Container(
           decoration: BoxDecoration(
-            color: (isDarkMode ? Colors.black : Colors.white).withValues(alpha: glassTheme.transparency),
+            color: (isDarkMode ? Colors.black : Colors.white).withValues(
+              alpha: glassTheme.transparency * (config.fidelity == LiquidFidelity.standard ? 0.8 : 1.0)
+            ),
             borderRadius: BorderRadius.circular(glassTheme.cornerRadius.r),
             border: Border.all(
-              color: (isDarkMode ? Colors.white : Colors.black).withValues(alpha: glassTheme.borderOpacity),
+              color: (isDarkMode ? Colors.white : Colors.black).withValues(
+                alpha: glassTheme.borderOpacity * (config.fidelity == LiquidFidelity.standard ? 0.5 : 1.0)
+              ),
               width: 0.5,
             ),
-            gradient: LinearGradient(
+            gradient: config.fidelity == LiquidFidelity.standard ? null : LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [

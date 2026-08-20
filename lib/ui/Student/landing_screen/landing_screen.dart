@@ -13,7 +13,6 @@ import 'package:eism/ui/Student/ministryReports_screen/ministryReports_screen.da
 import 'package:eism/ui/Student/reports_screen/reports_screen.dart';
 import 'package:eism/ui/Student/studentBook_screen/studentBook_screen.dart';
 import 'package:eism/ui/Student/weeklyPlan_screen/weeklyPlan_screen.dart';
-import 'package:eism/ui/login_screen/profileSelection_screen.dart';
 import 'package:eism/ui/main_navigation_screen.dart';
 import 'package:eism/ui/widgets/app_drawer.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -50,13 +49,6 @@ class LandingScreen extends StatelessWidget {
             tooltip: AppStrings.parentHome.tr(),
             onPressed: () {
               Navigator.pushNamedAndRemoveUntil(context, MainNavigationScreen.routeName, (route) => false);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.switch_account), 
-            tooltip: AppStrings.switchProfile.tr(),
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(context, ProfileSelectionScreen.routeName, (route) => false);
             },
           ),
         ],

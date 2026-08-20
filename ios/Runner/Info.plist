@@ -59,5 +59,10 @@
 	</array>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Select files to upload.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

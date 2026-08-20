@@ -1,4 +1,5 @@
 import 'package:eism/core/managers/strings_manager.dart';
+import 'package:eism/ui/Student/newsletter_screen/pdf_viewer_screen.dart';
 import 'package:eism/ui/Student/newsletter_screen/widgets/newsletter_model.dart';
 import 'package:eism/ui/Student/newsletter_screen/widgets/newsletter_tile.dart';
 import 'package:eism/ui/widgets/app_drawer.dart';
@@ -6,7 +7,6 @@ import 'package:eism/ui/widgets/glass/glass_app_bar.dart';
 import 'package:eism/ui/widgets/glass/glass_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,16 +54,18 @@ class _NewsletterScreenState extends State<NewsletterScreen> {
     }
   }
 
-  Future<void> _openNewsletter(String url) async {
-    if (url.isEmpty) return;
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.couldNotOpenPdf.tr())),
-        );
-      }
-    }
+  void _openNewsletter(Newsletter newsletter) {
+    if (newsletter.pdfUrl.isEmpty) return;
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PdfViewerScreen(
+          title: newsletter.title,
+          url: newsletter.pdfUrl,
+        ),
+      ),
+    );
   }
 
   @override
@@ -94,13 +96,14 @@ class _NewsletterScreenState extends State<NewsletterScreen> {
           ? _buildEmptyState()
           : RefreshIndicator(
               onRefresh: _fetchNewsletters,
-              child: ListView.builder(
+              child: ListView.separated(
                 padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 120.h),
                 itemCount: _newsletters.length,
+                separatorBuilder: (context, index) => SizedBox(height: 12.h),
                 itemBuilder: (context, index) {
                   return NewsletterTile(
                     newsletter: _newsletters[index], 
-                    onTap: () => _openNewsletter(_newsletters[index].pdfUrl)
+                    onTap: () => _openNewsletter(_newsletters[index])
                   );
                 },
               ),

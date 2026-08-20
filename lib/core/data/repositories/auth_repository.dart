@@ -15,13 +15,14 @@ class AuthRepository {
     required String password,
     String? deviceID,
     String? deviceType,
+    String? fcmToken,
   }) async {
     final response = await _apiClient.post(
       EndPoints.login,
       data: {
         'user': username,
         'pass': password,
-        'FCM': '', // To be configured later
+        'FCM': fcmToken ?? '',
         'deviceID': deviceID ?? '',
         'DeviceType': deviceType ?? '',
       },

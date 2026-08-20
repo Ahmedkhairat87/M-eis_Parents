@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "922869016384",
+    "project_id": "mobile-apps-notification-f703a",
+    "storage_bucket": "mobile-apps-notification-f703a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922869016384:android:ab52c1185c9da7524cbca5",
+        "android_client_info": {
+          "package_name": "parents.meis.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBSBrg3fvmIreQ2pmJHUhFpPhYgPg_5fM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
