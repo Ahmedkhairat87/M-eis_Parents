@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:eism/core/liquid_glass_config.dart';
 import 'package:eism/core/providers/theme_provider.dart';
 import 'package:eism/core/theme/liquid_glass_theme.dart';
 import 'package:flutter/material.dart';
@@ -40,9 +41,21 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       );
     }
 
+    final config = themeProvider.glassConfig;
+
+    double blurValue = glassTheme.blurIntensity;
+    if (config.fidelity == LiquidFidelity.standard) {
+      blurValue *= 0.5;
+    } else if (config.fidelity == LiquidFidelity.ultra) {
+      blurValue *= 1.2;
+    }
+
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: glassTheme.blurIntensity, sigmaY: glassTheme.blurIntensity),
+        filter: ImageFilter.blur(
+          sigmaX: blurValue * config.frostAmount * 2, 
+          sigmaY: blurValue * config.frostAmount * 2
+        ),
         child: AppBar(
           title: title,
           actions: actions,
@@ -50,11 +63,13 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
           centerTitle: centerTitle,
           elevation: elevation,
           backgroundColor: (backgroundColor ?? (isDarkMode ? Colors.black : Colors.white))
-              .withValues(alpha: glassTheme.transparency),
+              .withValues(alpha: glassTheme.transparency * (config.fidelity == LiquidFidelity.standard ? 0.8 : 1.0)),
           surfaceTintColor: Colors.transparent,
           shape: Border(
             bottom: BorderSide(
-              color: (isDarkMode ? Colors.white : Colors.black).withValues(alpha: glassTheme.borderOpacity),
+              color: (isDarkMode ? Colors.white : Colors.black).withValues(
+                alpha: glassTheme.borderOpacity * (config.fidelity == LiquidFidelity.standard ? 0.5 : 1.0)
+              ),
               width: 0.5,
             ),
           ),

@@ -19,8 +19,6 @@ class AppStrings {
   static const String sent = 'sent';
   static const String noMessages = 'no_messages';
   static const String compose = 'compose';
-  static const String schoolPortal = 'school_portal';
-  static const String videoHighlights = 'video_highlights';
   static const String settings = 'settings';
   static const String logout = 'logout';
   static const String cancel = 'cancel';
@@ -243,6 +241,17 @@ class AppStrings {
   static const String privacySecurity = 'privacy_security';
   static const String aboutApp = 'about_app';
 
+  // Ethereal Settings
+  static const String ethereal = 'ethereal';
+  static const String enableEthereal = 'enable_ethereal';
+  static const String visualFidelity = 'visual_fidelity';
+  static const String standard = 'standard';
+  static const String high = 'high';
+  static const String ultra = 'ultra';
+  static const String frostingAmount = 'frosting_amount';
+  static const String animationSpeed = 'animation_speed';
+  static const String breathingIntensity = 'breathing_intensity';
+
   // Common UI
   static const String selectParticipant = 'select_participant_error';
   static const String casVerificationInfo = 'cas_verification_info';
@@ -256,4 +265,6 @@ class AppStrings {
   static const String comment = 'comment';
   static const String childFollowUp = 'child_follow_up';
   static const String reviewingProgress = 'reviewing_progress';
+  static const String loadError = 'load_error';
+  static const String retry = 'retry';
 }

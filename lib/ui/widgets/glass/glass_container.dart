@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'dart:ui';
 import 'package:eism/core/liquid_glass_config.dart';
 import 'package:eism/core/providers/theme_provider.dart';
@@ -20,6 +20,7 @@ class GlassContainer extends StatefulWidget {
   final Color? color;
   final double? blur;
   final double? opacity;
+  final AlignmentGeometry? alignment;
 
   const GlassContainer({
     super.key,
@@ -34,6 +35,7 @@ class GlassContainer extends StatefulWidget {
     this.color,
     this.blur,
     this.opacity,
+    this.alignment,
   });
 
   @override
@@ -48,6 +50,8 @@ class _GlassContainerState extends State<GlassContainer> with TickerProviderStat
   @override
   void initState() {
     super.initState();
+    // Delay creation to access context if needed, but ThemeProvider might not be ready.
+    // Better to create it with a default and update in build.
     _controller = LiquidGlassController(vsync: this);
     _loadShader();
   }
@@ -84,6 +88,7 @@ class _GlassContainerState extends State<GlassContainer> with TickerProviderStat
     }
 
     final config = themeProvider.glassConfig;
+    _controller.updateSpeed(config.animationSpeed);
     final effectiveRadius = widget.borderRadius ?? BorderRadius.circular(glassTheme.cornerRadius);
 
     return MouseRegion(
@@ -92,83 +97,106 @@ class _GlassContainerState extends State<GlassContainer> with TickerProviderStat
         onPanUpdate: (details) => _controller.updatePointer(details.localPosition, context.size ?? Size.zero),
         child: AnimatedBuilder(
           animation: _controller,
+          child: widget.child,
           builder: (context, child) {
-            final breathing = 1.0 + (config.breathingScale - 1.0) * ((sin(_controller.time * config.breathingSpeed) + 1) / 2);
+            // Apply Fidelity rendering differences
+            double blurValue = widget.blur ?? glassTheme.blurIntensity;
+            if (config.fidelity == LiquidFidelity.standard) {
+              blurValue *= 0.5; // Less blur on standard
+            } else if (config.fidelity == LiquidFidelity.ultra) {
+              blurValue *= 1.2; // More blur on ultra
+            }
+
+            final breathingAmount = (config.breathingScale - 1.0) * ((math.sin(_controller.time * config.breathingSpeed * 1.5) + 1) / 2);
+            final breathing = 1.0 + breathingAmount;
             
-            return Transform.scale(
-              scale: breathing,
-              child: Container(
-                width: widget.width,
-                height: widget.height,
-                margin: widget.margin,
-                decoration: BoxDecoration(
-                  borderRadius: effectiveRadius,
-                  boxShadow: widget.boxShadow ?? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
+            return Container(
+              width: widget.width,
+              height: widget.height,
+              margin: widget.margin,
+              decoration: BoxDecoration(
+                borderRadius: effectiveRadius,
+                boxShadow: widget.boxShadow ?? (config.fidelity == LiquidFidelity.standard ? null : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                  ),
+                ]),
+              ),
+              child: ClipRRect(
+                borderRadius: effectiveRadius,
+                child: Stack(
+                  children: [
+                    // Background Breathing Layers - Scales behind content
+                    Positioned.fill(
+                      child: Transform.scale(
+                        scale: breathing,
+                        child: Stack(
+                          children: [
+                            // Layer 1: Backdrop Blur
+                            Positioned.fill(
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: blurValue * config.frostAmount * 2, 
+                                  sigmaY: blurValue * config.frostAmount * 2
+                                ),
+                                child: Container(
+                                  color: (isDarkMode ? Colors.white : Colors.black).withValues(alpha: 0.01)
+                                ),
+                              ),
+                            ),
+
+                            // Layer 2: Refraction Shader (Ultra Fidelity)
+                            if (config.fidelity == LiquidFidelity.ultra && _isShaderLoaded)
+                              Positioned.fill(
+                                child: CustomPaint(
+                                  painter: _ShaderPainter(
+                                    shader: _shader!,
+                                    time: _controller.time,
+                                    refraction: config.refractionDistortion,
+                                    chromatic: config.chromaticIntensity,
+                                    noise: config.noiseOpacity,
+                                  ),
+                                ),
+                              ),
+
+                            // Layer 3: Base Tint
+                            Positioned.fill(
+                              child: Container(
+                                color: (widget.color ?? (isDarkMode ? Colors.black : Colors.white))
+                                    .withValues(alpha: (widget.opacity ?? glassTheme.transparency) * (config.fidelity == LiquidFidelity.standard ? 0.8 : 1.0)),
+                              ),
+                            ),
+
+                            // Layer 4: Liquid Painter (Dynamic Reflections)
+                            if (config.fidelity != LiquidFidelity.standard)
+                              Positioned.fill(
+                                child: CustomPaint(
+                                  painter: LiquidGlassPainter(
+                                    controller: _controller,
+                                    config: config,
+                                    isDarkMode: isDarkMode,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Layer 5: Foreground Content - Defines the size of the Stack
+                    Align(
+                      alignment: widget.alignment ?? Alignment.topLeft,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Padding(
+                          padding: widget.padding ?? EdgeInsets.zero,
+                          child: child,
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                child: ClipRRect(
-                  borderRadius: effectiveRadius,
-                  child: Stack(
-                    children: [
-                      // Layer 1: Backdrop Blur (Static-ish)
-                      Positioned.fill(
-                        child: RepaintBoundary(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(
-                              sigmaX: widget.blur ?? glassTheme.blurIntensity, 
-                              sigmaY: widget.blur ?? glassTheme.blurIntensity
-                            ),
-                            child: Container(color: Colors.transparent),
-                          ),
-                        ),
-                      ),
-
-                      // Layer 2: Refraction Shader (Ultra Fidelity)
-                      if (config.fidelity == LiquidFidelity.ultra && _isShaderLoaded)
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: _ShaderPainter(
-                              shader: _shader!,
-                              time: _controller.time,
-                              refraction: config.refractionDistortion,
-                              chromatic: config.chromaticIntensity,
-                              noise: config.noiseOpacity,
-                            ),
-                          ),
-                        ),
-
-                      // Layer 3: Base Tint
-                      Positioned.fill(
-                        child: Container(
-                          color: (widget.color ?? (isDarkMode ? Colors.black : Colors.white))
-                              .withValues(alpha: widget.opacity ?? glassTheme.transparency),
-                        ),
-                      ),
-
-                      // Layer 4: Liquid Painter (Dynamic Reflections)
-                      if (config.fidelity != LiquidFidelity.standard)
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: LiquidGlassPainter(
-                              controller: _controller,
-                              config: config,
-                              isDarkMode: isDarkMode,
-                            ),
-                          ),
-                        ),
-
-                      // Layer 5: Foreground Content
-                      Padding(
-                        padding: widget.padding ?? EdgeInsets.zero,
-                        child: widget.child,
-                      ),
-                    ],
-                  ),
                 ),
               ),
             );
@@ -179,21 +207,30 @@ class _GlassContainerState extends State<GlassContainer> with TickerProviderStat
   }
 
   Widget _buildSimpleContainer(bool isDarkMode) {
+    final effectiveRadius = widget.borderRadius ?? BorderRadius.circular(12.0);
     return Container(
       width: widget.width,
       height: widget.height,
       margin: widget.margin,
-      padding: widget.padding,
       decoration: BoxDecoration(
         color: widget.color ?? (isDarkMode ? const Color(0xFF1E1E1E) : Colors.white),
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(12.0),
+        borderRadius: effectiveRadius,
         border: Border.all(
           color: (isDarkMode ? Colors.white : Colors.black).withValues(alpha: 0.1),
           width: 0.5,
         ),
         boxShadow: widget.boxShadow,
       ),
-      child: widget.child,
+      child: ClipRRect(
+        borderRadius: effectiveRadius,
+        child: Material(
+          color: Colors.transparent,
+          child: Padding(
+            padding: widget.padding ?? EdgeInsets.zero,
+            child: widget.child,
+          ),
+        ),
+      ),
     );
   }
 }

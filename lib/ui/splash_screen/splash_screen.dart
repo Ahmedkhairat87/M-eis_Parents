@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:eism/core/app_style.dart';
 import 'package:eism/ui/login_screen/login_screen.dart';
-import 'package:eism/ui/login_screen/profileSelection_screen.dart';
+import 'package:eism/ui/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
         
         if (mounted) {
           if (token != null && token.isNotEmpty) {
-            Navigator.pushReplacementNamed(context, ProfileSelectionScreen.routeName);
+            Navigator.pushReplacementNamed(context, MainNavigationScreen.routeName);
           } else {
             Navigator.pushReplacementNamed(context, LoginScreen.routeName);
           }

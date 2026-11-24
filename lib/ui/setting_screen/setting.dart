@@ -238,7 +238,7 @@ class SettingScreen extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
         children: [
-          _buildSectionHeader(context, "Account & Preferences"),
+          _buildSectionHeader(context, AppStrings.settings.tr()), // Or another appropriate header
           AppCard(
             padding: EdgeInsets.zero,
             child: Column(
@@ -259,7 +259,6 @@ class SettingScreen extends StatelessWidget {
                   onTap: () => _showChangePasswordDialog(context),
                   showDivider: true,
                 ),
-                /*_buildSettingTile(context, Icons.notifications_active_outlined, AppStrings.notifications.tr(), AppStrings.enabled.tr(), showDivider: true),*/
                 _buildSettingTile(
                   context,
                   Icons.security,
@@ -268,7 +267,6 @@ class SettingScreen extends StatelessWidget {
                   onTap: () => Navigator.pushNamed(context, PrivacySecurityScreen.routeName),
                   showDivider: true,
                 ),
-                // <-- Updated Version Tile Using FutureBuilder -->
                 FutureBuilder<PackageInfo>(
                   future: PackageInfo.fromPlatform(),
                   builder: (context, snapshot) {
@@ -293,7 +291,7 @@ class SettingScreen extends StatelessWidget {
           ),
 
           SizedBox(height: 24.h),
-          _buildSectionHeader(context, "Theme & Appearance"),
+          _buildSectionHeader(context, AppStrings.appearance.tr()),
           AppCard(
             padding: EdgeInsets.all(16.w),
             child: Column(
@@ -328,7 +326,7 @@ class SettingScreen extends StatelessWidget {
                     SizedBox(width: 12.w),
                     Expanded(
                       child: Text(
-                        "Enable Liquid Glass",
+                        AppStrings.enableEthereal.tr(),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14.sp,
@@ -353,7 +351,7 @@ class SettingScreen extends StatelessWidget {
                   _buildSliderControl(
                     context,
                     icon: Icons.blur_on,
-                    label: "Frosting Amount",
+                    label: AppStrings.frostingAmount.tr(),
                     value: themeProvider.glassConfig.frostAmount,
                     onChanged: (val) => themeProvider.updateGlassConfig(
                       themeProvider.glassConfig.copyWith(frostAmount: val),
@@ -363,7 +361,7 @@ class SettingScreen extends StatelessWidget {
                   _buildSliderControl(
                     context,
                     icon: Icons.auto_awesome_motion,
-                    label: "Liquid Animation Speed",
+                    label: AppStrings.animationSpeed.tr(),
                     value: themeProvider.glassConfig.animationSpeed,
                     max: 2.0,
                     onChanged: (val) => themeProvider.updateGlassConfig(
@@ -374,9 +372,9 @@ class SettingScreen extends StatelessWidget {
                   _buildSliderControl(
                     context,
                     icon: Icons.animation,
-                    label: "Breathing Intensity",
+                    label: AppStrings.breathingIntensity.tr(),
                     value: themeProvider.glassConfig.breathingScale - 1.0,
-                    max: 0.1,
+                    max: 0.5,
                     onChanged: (val) => themeProvider.updateGlassConfig(
                       themeProvider.glassConfig.copyWith(breathingScale: 1.0 + val),
                     ),
@@ -402,7 +400,7 @@ class SettingScreen extends StatelessWidget {
             const Icon(Icons.high_quality, color: AppStyle.primaryBlue),
             SizedBox(width: 12.w),
             Text(
-              "Visual Fidelity",
+              AppStrings.visualFidelity.tr(),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 14.sp,
@@ -413,10 +411,10 @@ class SettingScreen extends StatelessWidget {
         ),
         SizedBox(height: 12.h),
         SegmentedButton<LiquidFidelity>(
-          segments: const [
-            ButtonSegment(value: LiquidFidelity.standard, label: Text("Standard")),
-            ButtonSegment(value: LiquidFidelity.high, label: Text("High")),
-            ButtonSegment(value: LiquidFidelity.ultra, label: Text("Ultra")),
+          segments: [
+            ButtonSegment(value: LiquidFidelity.standard, label: Text(AppStrings.standard.tr())),
+            ButtonSegment(value: LiquidFidelity.high, label: Text(AppStrings.high.tr())),
+            ButtonSegment(value: LiquidFidelity.ultra, label: Text(AppStrings.ultra.tr())),
           ],
           selected: {themeProvider.glassConfig.fidelity},
           onSelectionChanged: (Set<LiquidFidelity> newSelection) {
@@ -472,7 +470,7 @@ class SettingScreen extends StatelessWidget {
               ),
             ),
             Text(
-              max == 1.0 ? "${(value * 100).toInt()}%" : value.toInt().toString(),
+              "${(value / max * 100).toInt()}%",
               style: TextStyle(color: Colors.grey, fontSize: 12.sp, fontWeight: FontWeight.bold),
             ),
           ],

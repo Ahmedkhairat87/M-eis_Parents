@@ -19,6 +19,7 @@ class LiquidGlassTheme extends ThemeExtension<LiquidGlassTheme> {
   final double interactiveSensitivity;
   final double breathingScale;
   final double breathingSpeed;
+  final double animationSpeed;
   final LiquidFidelity fidelity;
 
   const LiquidGlassTheme({
@@ -37,6 +38,7 @@ class LiquidGlassTheme extends ThemeExtension<LiquidGlassTheme> {
     this.interactiveSensitivity = 1.0,
     this.breathingScale = 1.02,
     this.breathingSpeed = 1.0,
+    this.animationSpeed = 1.0,
     this.fidelity = LiquidFidelity.high,
   });
 
@@ -57,6 +59,7 @@ class LiquidGlassTheme extends ThemeExtension<LiquidGlassTheme> {
     double? interactiveSensitivity,
     double? breathingScale,
     double? breathingSpeed,
+    double? animationSpeed,
     LiquidFidelity? fidelity,
   }) {
     return LiquidGlassTheme(
@@ -75,6 +78,7 @@ class LiquidGlassTheme extends ThemeExtension<LiquidGlassTheme> {
       interactiveSensitivity: interactiveSensitivity ?? this.interactiveSensitivity,
       breathingScale: breathingScale ?? this.breathingScale,
       breathingSpeed: breathingSpeed ?? this.breathingSpeed,
+      animationSpeed: animationSpeed ?? this.animationSpeed,
       fidelity: fidelity ?? this.fidelity,
     );
   }
@@ -98,6 +102,7 @@ class LiquidGlassTheme extends ThemeExtension<LiquidGlassTheme> {
       interactiveSensitivity: _lerpDouble(interactiveSensitivity, other.interactiveSensitivity, t)!,
       breathingScale: _lerpDouble(breathingScale, other.breathingScale, t)!,
       breathingSpeed: _lerpDouble(breathingSpeed, other.breathingSpeed, t)!,
+      animationSpeed: _lerpDouble(animationSpeed, other.animationSpeed, t)!,
       fidelity: t < 0.5 ? fidelity : other.fidelity,
     );
   }

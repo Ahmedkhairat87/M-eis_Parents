@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:eism/core/app_style.dart';
+import 'package:eism/core/managers/auth_session_manager.dart';
 import 'package:eism/core/managers/strings_manager.dart';
 import 'package:eism/ui/widgets/glass/glass_container.dart';
 import 'package:eism/ui/widgets/glass/glass_widgets.dart';
-import 'package:eism/ui/login_screen/profileSelection_screen.dart';
+import 'package:eism/ui/main_navigation_screen.dart';
 import 'package:eism/ui/login_screen/widgets/auth_background.dart';
 import 'package:eism/ui/login_screen/widgets/auth_logo.dart';
 import 'package:eism/ui/login_screen/widgets/auth_text_field.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:eism/core/services/notification_service.dart';
 
 import '../../core/data/api/api_client.dart';
 import '../../core/data/repositories/auth_repository.dart';
@@ -85,9 +87,11 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text,
           deviceID: deviceId,
           deviceType: deviceType,
+          fcmToken: await NotificationService().getSavedToken(),
         );
 
         if (response.token != null) {
+          AuthSessionManager.resetAuthFailureGuard();
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', response.token!);
           await prefs.setString('device_id', deviceId);
@@ -98,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setString('saved_password', _passwordController.text);
           
           if (mounted) {
-            Navigator.pushReplacementNamed(context, ProfileSelectionScreen.routeName);
+            Navigator.pushReplacementNamed(context, MainNavigationScreen.routeName);
           }
         } else {
           if (mounted) {

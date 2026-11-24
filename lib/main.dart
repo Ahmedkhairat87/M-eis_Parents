@@ -1,3 +1,4 @@
+import 'package:eism/core/managers/auth_session_manager.dart';
 import 'package:eism/core/providers/parent_provider.dart';
 import 'package:eism/core/providers/student_provider.dart';
 // ... rest of imports
@@ -14,7 +15,6 @@ import 'package:eism/ui/cas_screen/cas_screen.dart';
 import 'package:eism/ui/home_screen/home_screen.dart';
 import 'package:eism/ui/main_navigation_screen.dart';
 import 'package:eism/ui/login_screen/login_screen.dart';
-import 'package:eism/ui/login_screen/profileSelection_screen.dart';
 import 'package:eism/ui/massages_screen/massages_screen.dart';
 import 'package:eism/ui/profile_screen/profile_screen.dart';
 import 'package:eism/ui/setting_screen/privacy_security_screen.dart';
@@ -24,11 +24,16 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:eism/core/services/notification_service.dart';
 
 import 'core/app_style.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Notification Service (which initializes Firebase)
+  await NotificationService().initialize();
+
   await EasyLocalization.ensureInitialized();
   
   runApp(
@@ -68,6 +73,7 @@ class MyApp extends StatelessWidget {
         );
 
         return MaterialApp(
+          navigatorKey: AuthSessionManager.navigatorKey,
           title: "The Egyptian International School In Al-Mi'rag",
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
@@ -80,7 +86,6 @@ class MyApp extends StatelessWidget {
           routes: {
             SplashScreen.routeName: (_) => const SplashScreen(),
             LoginScreen.routeName: (_) => const LoginScreen(),
-            ProfileSelectionScreen.routeName: (_) => const ProfileSelectionScreen(),
             HomeScreen.routeName: (_) => const MainNavigationScreen(),
             MainNavigationScreen.routeName: (_) => const MainNavigationScreen(),
             LandingScreen.routeName: (_) => const LandingScreen(),

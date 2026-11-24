@@ -153,7 +153,9 @@ class _MassagesScreenState extends State<MassagesScreen> with SingleTickerProvid
         ],
       ),
       floatingActionButton: Padding(
-        padding: EdgeInsets.only(bottom: 40.h),
+        padding: EdgeInsets.only(
+          bottom: 100.h + MediaQuery.of(context).padding.bottom,
+        ),
         child: FloatingActionButton(
           onPressed: _openComposeDialog,
           backgroundColor: Theme.of(context).primaryColor,
