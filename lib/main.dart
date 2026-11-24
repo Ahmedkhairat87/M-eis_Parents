@@ -1,3 +1,4 @@
+import 'package:eism/core/managers/auth_session_manager.dart';
 import 'package:eism/core/providers/parent_provider.dart';
 import 'package:eism/core/providers/student_provider.dart';
 // ... rest of imports
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
         );
 
         return MaterialApp(
+          navigatorKey: AuthSessionManager.navigatorKey,
           title: "The Egyptian International School In Al-Mi'rag",
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,

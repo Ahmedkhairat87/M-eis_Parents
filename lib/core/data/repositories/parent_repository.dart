@@ -372,9 +372,17 @@ class ParentRepository {
       },
     );
 
+    if (response.statusCode == 204) {
+      return [];
+    }
+
     Map<String, dynamic> responseData;
     if (response.data is String) {
-      responseData = jsonDecode(response.data);
+      final String dataString = response.data as String;
+      if (dataString.trim().isEmpty) {
+        return [];
+      }
+      responseData = jsonDecode(dataString);
     } else if (response.data is Map) {
       responseData = response.data;
     } else {

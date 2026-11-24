@@ -265,4 +265,6 @@ class AppStrings {
   static const String comment = 'comment';
   static const String childFollowUp = 'child_follow_up';
   static const String reviewingProgress = 'reviewing_progress';
+  static const String loadError = 'load_error';
+  static const String retry = 'retry';
 }

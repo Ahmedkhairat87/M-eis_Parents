@@ -1,13 +1,126 @@
 {
   "project_info": {
-    "project_number": "922869016384",
-    "project_id": "mobile-apps-notification-f703a",
-    "storage_bucket": "mobile-apps-notification-f703a.firebasestorage.app"
+    "project_number": "934755737781",
+    "firebase_url": "https://paren-notification.firebaseio.com",
+    "project_id": "paren-notification",
+    "storage_bucket": "paren-notification.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:922869016384:android:ab52c1185c9da7524cbca5",
+        "mobilesdk_app_id": "1:934755737781:android:282e725d493a1a632e5efc",
+        "android_client_info": {
+          "package_name": "com.oasis.oasisparents"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "934755737781-2nbk4rdajmvh94do9fd030d00oq2u3v6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oasis.oasisparents",
+            "certificate_hash": "d1ec1292b9ad1d680e239a643013729f39ba6a20"
+          }
+        },
+        {
+          "client_id": "934755737781-41qosaevsi4ge9v831n69fsftba8tqo9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oasis.oasisparents",
+            "certificate_hash": "982071d63a3b77bc61014da76cbbbccc5719a335"
+          }
+        },
+        {
+          "client_id": "934755737781-bq9k6f5k0oeh11v7cuqmsljgjculuc7g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oasis.oasisparents",
+            "certificate_hash": "5cfbd523e682ad7a7bfc9127f80dab4d40bf0b42"
+          }
+        },
+        {
+          "client_id": "934755737781-gk4ubovt1dli2994r5s8qbm3t9ne087h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oasis.oasisparents",
+            "certificate_hash": "8a4d07cd3fb0caf2c2f6b36c08765a4ded215706"
+          }
+        },
+        {
+          "client_id": "934755737781-gkdq3f09oomap66a52l8g436ardcrget.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oasis.oasisparents",
+            "certificate_hash": "bab02803d03c2fa0d0ad092fba74ce12e4fcc735"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPFL9rcq7T5dRWRYm3Rh2Mqp1eYyEL4Cg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "934755737781-4oo24t197k0cvli3sk3qinlstboujgan.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "934755737781-1enlqkn7cb8di2s06tlupvu76kajp32v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "oasisdemaadi.Oasis-Students"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934755737781:android:6c66ab3422272aba2e5efc",
+        "android_client_info": {
+          "package_name": "com.oasis.oasisstudent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "934755737781-le30stvm67u5mismvfm83tl7juhm00qj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oasis.oasisstudent",
+            "certificate_hash": "d1ec1292b9ad1d680e239a643013729f39ba6a20"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPFL9rcq7T5dRWRYm3Rh2Mqp1eYyEL4Cg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "934755737781-4oo24t197k0cvli3sk3qinlstboujgan.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "934755737781-1enlqkn7cb8di2s06tlupvu76kajp32v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "oasisdemaadi.Oasis-Students"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934755737781:android:24d797ae59b19dc02e5efc",
         "android_client_info": {
           "package_name": "parents.meis.com"
         }
@@ -15,12 +128,24 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDBSBrg3fvmIreQ2pmJHUhFpPhYgPg_5fM"
+          "current_key": "AIzaSyCPFL9rcq7T5dRWRYm3Rh2Mqp1eYyEL4Cg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "934755737781-4oo24t197k0cvli3sk3qinlstboujgan.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "934755737781-1enlqkn7cb8di2s06tlupvu76kajp32v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "oasisdemaadi.Oasis-Students"
+              }
+            }
+          ]
         }
       }
     }

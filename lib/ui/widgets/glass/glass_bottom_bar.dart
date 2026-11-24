@@ -54,7 +54,10 @@ class GlassBottomBar extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(glassTheme.cornerRadius.r),
-          child: bottomNav,
+          child: Transform.translate(
+            offset: Offset(0, 8.h),
+            child: bottomNav,
+          ),
         ),
       );
     }
@@ -96,7 +99,10 @@ class GlassBottomBar extends StatelessWidget {
               ],
             ),
           ),
-          child: bottomNav,
+          child: Transform.translate(
+            offset: Offset(0, 8.h),
+            child: bottomNav,
+          ),
         ),
       ),
     );

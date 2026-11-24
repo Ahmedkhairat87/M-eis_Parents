@@ -14,31 +14,43 @@ class StudentBookRepository {
     required String token,
     required String studentId,
   }) async {
-    final response = await _apiClient.post(
-      EndPoints.studentBook,
-      data: {
-        'token': token,
-        'stdID': studentId,
-      },
-    );
+    try {
+      final response = await _apiClient.post(
+        EndPoints.studentBook,
+        data: {
+          'token': token,
+          'stdID': studentId,
+        },
+      );
 
-    Map<String, dynamic> responseData;
-    if (response.data is String) {
-      if (response.data.isEmpty) return {'inbox': [], 'sent': []};
-      responseData = jsonDecode(response.data);
-    } else if (response.data is Map) {
-      responseData = response.data;
-    } else {
-      return {'inbox': [], 'sent': []};
+      Map<String, dynamic> responseData;
+      if (response.data is String) {
+        if (response.data.isEmpty) return {'inbox': [], 'sent': []};
+        responseData = jsonDecode(response.data);
+      } else if (response.data is Map) {
+        responseData = response.data;
+      } else {
+        return {'inbox': [], 'sent': []};
+      }
+
+      final inboxList = responseData['Data'] ?? [];
+      final sentList = responseData['Data2'] ?? [];
+
+      return {
+        'inbox': (inboxList as List).map((e) => StudentBookMessageModel.fromJson(e)).toList(),
+        'sent': (sentList as List).map((e) => StudentBookMessageModel.fromJson(e)).toList(),
+      };
+    } on ApiException catch (e) {
+      if (e.statusCode == 500 &&
+          e.responseData is Map &&
+          e.responseData['ExceptionMessage'] == "There is no row at position 0.") {
+        return {
+          'inbox': <StudentBookMessageModel>[],
+          'sent': <StudentBookMessageModel>[],
+        };
+      }
+      rethrow;
     }
-
-    final inboxList = responseData['Data'] ?? [];
-    final sentList = responseData['Data2'] ?? [];
-
-    return {
-      'inbox': (inboxList as List).map((e) => StudentBookMessageModel.fromJson(e)).toList(),
-      'sent': (sentList as List).map((e) => StudentBookMessageModel.fromJson(e)).toList(),
-    };
   }
 
   Future<bool> markAsRead({

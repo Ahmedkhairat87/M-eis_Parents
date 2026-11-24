@@ -14,30 +14,39 @@ class WeeklyPlanRepository {
     required String token,
     required String studentId,
   }) async {
-    final response = await _apiClient.post(
-      EndPoints.weeklyPlanWeeks,
-      data: {
-        'token': token,
-        'stdID': studentId,
-      },
-    );
+    try {
+      final response = await _apiClient.post(
+        EndPoints.weeklyPlanWeeks,
+        data: {
+          'token': token,
+          'stdID': studentId,
+        },
+      );
 
-    if (response.statusCode == 204 || response.data == null) {
-      return [];
+      if (response.statusCode == 204 || response.data == null) {
+        return [];
+      }
+
+      Map<String, dynamic> responseData;
+      if (response.data is String) {
+        if (response.data.isEmpty) return [];
+        responseData = jsonDecode(response.data);
+      } else if (response.data is Map) {
+        responseData = response.data;
+      } else {
+        return [];
+      }
+
+      final list = responseData['Weeks'] ?? [];
+      return (list as List).map((e) => WeeklyPlanWeekModel.fromJson(e)).toList();
+    } on ApiException catch (e) {
+      if (e.statusCode == 500 &&
+          e.responseData is Map &&
+          e.responseData['ExceptionMessage'] == "There is no row at position 0.") {
+        return [];
+      }
+      rethrow;
     }
-
-    Map<String, dynamic> responseData;
-    if (response.data is String) {
-      if (response.data.isEmpty) return [];
-      responseData = jsonDecode(response.data);
-    } else if (response.data is Map) {
-      responseData = response.data;
-    } else {
-      return [];
-    }
-
-    final list = responseData['Weeks'] ?? [];
-    return (list as List).map((e) => WeeklyPlanWeekModel.fromJson(e)).toList();
   }
 
   Future<String?> getViewWeeklyPlanUrl({
