@@ -1,9 +1,11 @@
 import 'package:eism/core/app_style.dart';
 import 'package:eism/ui/massages_screen/widgets/message_model.dart';
+import 'package:eism/ui/widgets/attachment_viewer_screen.dart';
+import 'package:eism/ui/widgets/in_app_web_view_screen.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/data/api/api_client.dart';
 import '../../../core/data/repositories/message_repository.dart';
@@ -20,11 +22,25 @@ class _MessageDetailDialogState extends State<MessageDetailDialog> {
   final MessageRepository _messageRepository = MessageRepository(ApiClient());
   bool _isLoading = true;
   Map<String, dynamic>? _details;
+  final List<TapGestureRecognizer> _gestureRecognizers = [];
 
   @override
   void initState() {
     super.initState();
     _fetchDetails();
+  }
+
+  @override
+  void dispose() {
+    _disposeGestureRecognizers();
+    super.dispose();
+  }
+
+  void _disposeGestureRecognizers() {
+    for (final recognizer in _gestureRecognizers) {
+      recognizer.dispose();
+    }
+    _gestureRecognizers.clear();
   }
 
   Future<void> _fetchDetails() async {
@@ -54,15 +70,125 @@ class _MessageDetailDialogState extends State<MessageDetailDialog> {
     }
   }
 
-  Future<void> _launchUrl(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open attachment')),
-        );
-      }
+  String _normalizeUrl(String url) {
+    final trimmed = url.trim();
+    if (trimmed.toLowerCase().startsWith('www.')) {
+      return 'https://$trimmed';
     }
+    return trimmed;
+  }
+
+  void _openWebLink(String url) {
+    if (url.isEmpty) return;
+    final finalUrl = _normalizeUrl(url);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InAppWebViewScreen(
+          url: finalUrl,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageBodyWithLinks(String text, TextStyle defaultStyle, bool isDark) {
+    _disposeGestureRecognizers();
+
+    if (text.trim().isEmpty) {
+      return Text('No content', style: defaultStyle);
+    }
+
+    final RegExp urlRegex = RegExp(
+      r'((?:https?:\/\/|www\.)[^\s<>{}\[\]]+)',
+      caseSensitive: false,
+    );
+
+    final linkStyle = defaultStyle.copyWith(
+      color: isDark ? const Color(0xFF64B5F6) : AppStyle.primaryBlue,
+      decoration: TextDecoration.underline,
+      fontWeight: FontWeight.w600,
+    );
+
+    final List<InlineSpan> spans = [];
+    int lastMatchEnd = 0;
+
+    for (final match in urlRegex.allMatches(text)) {
+      final String rawMatch = match.group(0)!;
+      final int matchStart = match.start;
+
+      if (matchStart > lastMatchEnd) {
+        spans.add(TextSpan(
+          text: text.substring(lastMatchEnd, matchStart),
+          style: defaultStyle,
+        ));
+      }
+
+      String url = rawMatch;
+      String trailingPunctuation = '';
+
+      final punctuationRegex = RegExp(r'[.,;:!?\)\],،؟۔]+$');
+      final pMatch = punctuationRegex.firstMatch(rawMatch);
+      if (pMatch != null) {
+        trailingPunctuation = pMatch.group(0)!;
+        url = rawMatch.substring(0, rawMatch.length - trailingPunctuation.length);
+      }
+
+      if (url.isNotEmpty) {
+        final String finalUrl = url;
+        final recognizer = TapGestureRecognizer()
+          ..onTap = () => _openWebLink(finalUrl);
+        _gestureRecognizers.add(recognizer);
+
+        spans.add(TextSpan(
+          text: finalUrl,
+          style: linkStyle,
+          recognizer: recognizer,
+        ));
+      }
+
+      if (trailingPunctuation.isNotEmpty) {
+        spans.add(TextSpan(
+          text: trailingPunctuation,
+          style: defaultStyle,
+        ));
+      }
+
+      lastMatchEnd = match.end;
+    }
+
+    if (lastMatchEnd < text.length) {
+      spans.add(TextSpan(
+        text: text.substring(lastMatchEnd),
+        style: defaultStyle,
+      ));
+    }
+
+    return SelectableText.rich(
+      TextSpan(children: spans),
+      style: defaultStyle,
+    );
+  }
+
+  void _openAttachment(String fileName, String fileUrl) {
+    if (fileUrl.isEmpty) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AttachmentViewerScreen(
+          title: fileName,
+          url: fileUrl,
+        ),
+      ),
+    );
+  }
+
+  IconData _getAttachmentIcon(String fileName, String fileUrl) {
+    final ext = (fileName.contains('.') ? fileName.split('.').last : fileUrl.split('.').last).toLowerCase();
+    if (ext == 'pdf') return Icons.picture_as_pdf_rounded;
+    if (['mp4', 'mov', 'm4v', 'webm', 'avi', 'mkv'].contains(ext)) return Icons.video_library_rounded;
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext)) return Icons.image_rounded;
+    if (['doc', 'docx', 'xls', 'xlsx', 'csv', 'ppt', 'pptx'].contains(ext)) return Icons.description_rounded;
+    return Icons.insert_drive_file_rounded;
   }
 
   @override
@@ -111,9 +237,10 @@ class _MessageDetailDialogState extends State<MessageDetailDialog> {
                 SizedBox(height: 8.h),
                 Flexible(
                   child: SingleChildScrollView(
-                    child: Text(
-                      body.trim().isEmpty ? 'No content' : body.trim(),
-                      style: TextStyle(fontSize: 14.sp, height: 1.5, color: isDark ? Colors.white : Colors.black87),
+                    child: _buildMessageBodyWithLinks(
+                      body.trim(),
+                      TextStyle(fontSize: 14.sp, height: 1.5, color: isDark ? Colors.white : Colors.black87),
+                      isDark,
                     ),
                   ),
                 ),
@@ -127,9 +254,9 @@ class _MessageDetailDialogState extends State<MessageDetailDialog> {
                     return ListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.picture_as_pdf, color: Colors.red, size: 24),
+                      leading: Icon(_getAttachmentIcon(fileName, fileUrl), color: AppStyle.primaryBlue, size: 24.sp),
                       title: Text(fileName, style: TextStyle(fontSize: 12.sp, decoration: TextDecoration.underline, color: AppStyle.primaryBlue)),
-                      onTap: fileUrl.isNotEmpty ? () => _launchUrl(fileUrl) : null,
+                      onTap: fileUrl.isNotEmpty ? () => _openAttachment(fileName, fileUrl) : null,
                     );
                   }),
                 ],

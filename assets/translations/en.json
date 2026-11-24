@@ -48,7 +48,7 @@
   "contact_notice_points": "* For all academic matters related to your child, please continue using your Parent Account Messages to communicate with the school administration.\n* Please use this channel only for administrative inquiries, such as general questions, requests, or other non-academic matters.",
   "proceed": "Proceed",
   "student_academic_portal": "Student Academic Portal",
-  "academic_year": "Academic Year 2023-24",
+  "academic_year": "Academic Year 2026-27",
   "view_plan": "VIEW PLAN",
   "select_week": "Select Week",
   "week": "Week",
@@ -236,5 +236,7 @@
   "status_secure_https": "Secure HTTPS Connection",
   "status_protected_auth": "Protected Authentication",
   "status_no_tracking": "No Third-Party Tracking",
-  "status_permissions_on_demand": "Permissions Used Only When Required"
+  "status_permissions_on_demand": "Permissions Used Only When Required",
+  "load_error": "We couldn’t load the children right now. Please try again.",
+  "retry": "RETRY"
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:eism/core/app_style.dart';
+import 'package:eism/core/managers/auth_session_manager.dart';
 import 'package:eism/core/managers/strings_manager.dart';
 import 'package:eism/ui/widgets/glass/glass_container.dart';
 import 'package:eism/ui/widgets/glass/glass_widgets.dart';
@@ -90,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (response.token != null) {
+          AuthSessionManager.resetAuthFailureGuard();
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', response.token!);
           await prefs.setString('device_id', deviceId);

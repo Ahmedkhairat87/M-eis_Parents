@@ -1,12 +1,13 @@
 import 'package:eism/core/app_style.dart';
+import 'package:eism/ui/under_construction/uc.dart';
 import 'package:eism/ui/widgets/glass/glass_container.dart';
 import 'package:eism/ui/widgets/glass/glass_scaffold.dart';
 import 'package:eism/ui/widgets/glass/glass_bottom_bar.dart';
+import 'package:eism/ui/widgets/glass/specular_glass_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:eism/core/managers/strings_manager.dart';
-import 'package:eism/ui/cas_screen/cas_screen.dart';
 import 'package:eism/ui/home_screen/home_screen.dart';
 import 'package:eism/ui/massages_screen/massages_screen.dart';
 import 'package:eism/ui/profile_screen/profile_screen.dart';
@@ -44,7 +45,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               HomeScreen(),
               MassagesScreen(),
               NewsletterScreen(),
-              CreativityActivityService(),
+              UnderConstructionScreen(),
+              /*CreativityActivityService(),*/
               ProfileScreen(),
             ],
           ),
@@ -71,7 +73,34 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
           ),
 
-          // Standard GlassBottomBar Overlay
+          // ONE CONTINUOUS FULL-WIDTH MOTION-RESPONSIVE GLASS SURFACE LAYER
+          // Begins around the vertical middle region of the floating navigation capsule,
+          // spans the FULL SCREEN WIDTH (left: 0, right: 0), and extends to bottom of screen!
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AbsorbPointer(
+              absorbing: !isHome,
+              child: AnimatedOpacity(
+                opacity: isHome ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                child: AnimatedSlide(
+                  offset: isHome ? const Offset(0, 0.2) : Offset.zero,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: SpecularGlassLayer(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                    height: 56.h + MediaQuery.of(context).padding.bottom,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Standard GlassBottomBar Overlay (Positioned IN FRONT)
           Align(
             alignment: Alignment.bottomCenter,
             child: IgnorePointer(

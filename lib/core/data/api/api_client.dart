@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:eism/core/managers/auth_session_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'end_points.dart';
 
 class ApiClient {
@@ -17,10 +20,12 @@ class ApiClient {
       ),
     );
 
-    // Logging Interceptor
+    // Logging Interceptor (Production Safe: requestBody & responseBody set to false so passwords/tokens are not logged)
     _dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
+      requestHeader: false,
+      requestBody: false,
+      responseHeader: false,
+      responseBody: false,
     ));
     
     // Future: Add Auth Interceptor here for Bearer tokens
@@ -43,7 +48,38 @@ class ApiClient {
   }
 
   Exception _handleError(DioException e) {
-    // Custom error handling logic based on status codes
+    if (e.response != null) {
+      if (e.response?.statusCode == 417) {
+        if (kDebugMode) {
+          debugPrint('[API 417] Server response: ${e.response?.data}');
+        }
+        final bool isLoginRequest = e.requestOptions.path.contains(EndPoints.login) ||
+            e.requestOptions.path.contains('Parent/Login');
+        if (!isLoginRequest) {
+          unawaited(AuthSessionManager.handle417AuthFailure());
+        }
+      }
+      return ApiException(
+        message: e.message ?? 'Unknown error occurred',
+        statusCode: e.response?.statusCode,
+        responseData: e.response?.data,
+      );
+    }
     return Exception(e.message ?? 'Unknown error occurred');
   }
+}
+
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+  final dynamic responseData;
+
+  ApiException({
+    required this.message,
+    this.statusCode,
+    this.responseData,
+  });
+
+  @override
+  String toString() => message;
 }

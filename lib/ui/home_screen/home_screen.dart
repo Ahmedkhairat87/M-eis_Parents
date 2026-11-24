@@ -39,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   final ParentRepository _parentRepository = ParentRepository(ApiClient());
   List<AppProfile> _profiles = [];
   bool _isLoading = true;
+  bool _hasError = false;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -74,6 +75,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Future<void> _fetchInitialData() async {
     try {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token') ?? '';
       final deviceID = prefs.getString('device_id') ?? '';
@@ -114,15 +120,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         setState(() {
           _profiles = loadedProfiles;
           _isLoading = false;
+          _hasError = false;
         });
         _animationController.forward();
       }
     } catch (e) {
+      debugPrint('Error fetching initial data: $e');
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+        });
         _animationController.forward();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
+          SnackBar(
+            content: Text(AppStrings.loadError.tr()),
+            action: SnackBarAction(
+              label: AppStrings.retry.tr(),
+              onPressed: _fetchInitialData,
+            ),
+          ),
         );
       }
     }
@@ -273,12 +290,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               padding: EdgeInsets.symmetric(horizontal: 40.w),
                               child: GlassContainer(
                                 padding: EdgeInsets.all(20.w),
-                                child: Text(
-                                  "No registered children found under your account.", 
-                                  textAlign: TextAlign.center,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: isDark ? Colors.white70 : Colors.black54,
-                                  ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      _hasError 
+                                        ? AppStrings.loadError.tr()
+                                        : "No registered children found under your account.", 
+                                      textAlign: TextAlign.center,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: isDark ? Colors.white70 : Colors.black54,
+                                      ),
+                                    ),
+                                    if (_hasError) ...[
+                                      SizedBox(height: 16.h),
+                                      TextButton.icon(
+                                        onPressed: _fetchInitialData,
+                                        icon: const Icon(Icons.refresh, color: AppStyle.primaryBlue),
+                                        label: Text(
+                                          AppStrings.retry.tr(),
+                                          style: const TextStyle(color: AppStyle.primaryBlue, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ),
                             )

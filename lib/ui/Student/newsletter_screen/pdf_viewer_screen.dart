@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as p;
 
 class PdfViewerScreen extends StatefulWidget {
@@ -86,19 +85,14 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     setState(() => _isDownloading = true);
 
     try {
-      // Permission handling for Android
-      if (Platform.isAndroid) {
-        if (await Permission.manageExternalStorage.request().isGranted || 
-            await Permission.storage.request().isGranted) {
-          // Continue
-        } else {
-          throw Exception('Storage permission denied');
-        }
-      }
-
       Directory? downloadsDir;
       if (Platform.isAndroid) {
-        downloadsDir = Directory('/storage/emulated/0/Download');
+        try {
+          downloadsDir = await getDownloadsDirectory();
+        } catch (_) {}
+        downloadsDir ??= (await getExternalStorageDirectories(type: StorageDirectory.downloads))?.firstOrNull;
+        downloadsDir ??= await getExternalStorageDirectory();
+        downloadsDir ??= await getApplicationDocumentsDirectory();
       } else {
         downloadsDir = await getApplicationDocumentsDirectory();
       }
@@ -125,7 +119,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         );
       }
     } finally {
-      setState(() => _isDownloading = false);
+      if (mounted) setState(() => _isDownloading = false);
     }
   }
 

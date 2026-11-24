@@ -26,7 +26,7 @@ class GlassScaffold extends StatefulWidget {
     this.floatingActionButtonLocation,
     this.drawer,
     this.extendBodyBehindAppBar = false,
-    this.extendBody = false,
+    this.extendBody = true,
     this.backgroundColor,
   });
 
